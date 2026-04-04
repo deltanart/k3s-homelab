@@ -1,0 +1,35 @@
+---
+- name: k3s VMs auf Proxmox erstellen
+  hosts: proxmox
+  gather_facts: true
+  vars_files:
+    - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
+
+  tasks:
+    - name: Master-VM erstellen
+      ansible.builtin.include_role:
+        name: proxmox_vm
+      vars:
+        vm_id: 110
+        vm_name: k3s-master-01
+        vm_ip: 192.168.1.110
+        vm_gateway: 192.168.1.1
+        vm_cores: "{{ hostvars['k3s-master-01'].vm_cores | default(2) }}"
+        vm_memory: "{{ hostvars['k3s-master-01'].vm_memory | default(4096) }}"
+        vm_disk_size: "40G"
+
+    - name: Worker-VMs erstellen
+      ansible.builtin.include_role:
+        name: proxmox_vm
+      vars:
+        vm_id: "{{ 110 + idx + 1 }}"
+        vm_name: "k3s-worker-0{{ idx + 1 }}"
+        vm_ip: "192.168.1.{{ 110 + idx + 1 }}"
+        vm_gateway: 192.168.1.1
+        vm_cores: 4
+        vm_memory: 8192
+        vm_disk_size: "80G"
+      loop: "{{ range(2) | list }}"
+      loop_control:
+        index_var: idx
+        label: "k3s-worker-0{{ idx + 1 }}"

@@ -1,0 +1,7 @@
+---
+# === Master-Node VM-Specs ===
+vm_id_start: 110
+vm_cores: 2
+vm_memory: 4096           # 4 GB RAM
+vm_disk_size: "40G"
+vm_name_prefix: "k3s-master"

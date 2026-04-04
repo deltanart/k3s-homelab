@@ -1,0 +1,92 @@
+---
+- name: Paketlisten aktualisieren und System upgraden
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Benötigte Pakete installieren
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - git
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - open-iscsi      # Longhorn-Voraussetzung
+      - nfs-common      # NFS-Volumes
+      - jq
+      - htop
+      - iotop
+    state: present
+
+- name: open-iscsi aktivieren und starten (Longhorn)
+  ansible.builtin.systemd:
+    name: iscsid
+    enabled: true
+    state: started
+
+- name: Swap deaktivieren (permanent)
+  ansible.builtin.command: swapoff -a
+  changed_when: false
+
+- name: Swap aus /etc/fstab entfernen
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: Kernel-Module laden
+  ansible.builtin.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Kernel-Module persistent machen
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/k3s.conf
+    content: |
+      overlay
+      br_netfilter
+    mode: '0644'
+
+- name: Sysctl-Parameter für Kubernetes setzen
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-k3s.conf
+  loop:
+    - { key: "net.bridge.bridge-nf-call-iptables",  value: "1" }
+    - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    - { key: "net.ipv4.ip_forward",                 value: "1" }
+    - { key: "vm.swappiness",                        value: "0" }
+    - { key: "fs.inotify.max_user_watches",         value: "524288" }
+    - { key: "fs.inotify.max_user_instances",       value: "512" }
+
+- name: Hostname setzen
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: /etc/hosts Eintrag setzen
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^127.0.1.1"
+    line: "127.0.1.1 {{ inventory_hostname }}"
+
+- name: Cluster-Nodes in /etc/hosts eintragen
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[item].ansible_host }} {{ item }}"
+    regexp: "^{{ hostvars[item].ansible_host }}"
+  loop: "{{ groups['k3s_cluster'] }}"
+
+- name: System neu starten wenn Kernel-Updates vorhanden
+  ansible.builtin.reboot:
+    reboot_timeout: 120
+  when: ansible_facts.packages is defined

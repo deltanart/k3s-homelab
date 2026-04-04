@@ -1,0 +1,35 @@
+---
+- name: OS auf allen k3s-Nodes vorbereiten
+  hosts: k3s_cluster
+  become: true
+  gather_facts: true
+  vars_files:
+    - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
+  roles:
+    - k3s_common
+
+- name: k3s Control Plane installieren
+  hosts: masters
+  become: true
+  gather_facts: true
+  vars_files:
+    - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
+  roles:
+    - k3s_server
+
+- name: k3s Worker-Nodes joinen
+  hosts: workers
+  become: true
+  gather_facts: true
+  vars_files:
+    - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
+  roles:
+    - k3s_agent
+
+- name: Lokale Tools und kubeconfig einrichten
+  hosts: masters
+  gather_facts: true
+  vars_files:
+    - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
+  roles:
+    - post_install

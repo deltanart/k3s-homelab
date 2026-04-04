@@ -1,0 +1,33 @@
+---
+- name: Prüfe ob k3s-Agent bereits läuft
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: k3s Agent installieren und Server joinen
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | \
+    INSTALL_K3S_VERSION="{{ k3s_version }}" \
+    K3S_URL="https://{{ hostvars[groups['masters'][0]].ansible_host }}:6443" \
+    K3S_TOKEN="{{ hostvars[groups['masters'][0]].k3s_node_token }}" \
+    sh -s - agent \
+      {{ k3s_agent_extra_args }}
+  when: not k3s_binary.stat.exists
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Warte bis k3s-Agent-Service läuft
+  ansible.builtin.systemd:
+    name: k3s-agent
+    state: started
+    enabled: true
+
+- name: Prüfe Node-Status (vom Master aus)
+  ansible.builtin.command: kubectl get nodes
+  register: node_status
+  delegate_to: "{{ groups['masters'][0] }}"
+  changed_when: false
+
+- name: Node-Status ausgeben
+  ansible.builtin.debug:
+    msg: "{{ node_status.stdout_lines }}"

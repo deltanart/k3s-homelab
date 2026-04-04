@@ -1,0 +1,42 @@
+---
+# === Proxmox ===
+proxmox_host: 192.168.1.10          # <-- anpassen
+proxmox_node: pve                   # Proxmox-Nodename (pvesh nodes)
+proxmox_storage: local-lvm          # Storage für VM-Disks
+proxmox_bridge: vmbr0               # Netzwerk-Bridge
+
+# === VM Defaults ===
+vm_template_id: 9000                # Cloud-Init Template VMID
+vm_os_disk_size: "40G"
+vm_nameservers: "192.168.1.1"       # <-- dein Router/DNS
+vm_searchdomain: "home.local"
+vm_ssh_public_key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+
+# === k3s ===
+k3s_version: "v1.30.3+k3s1"
+k3s_cluster_cidr: "10.42.0.0/16"   # Pod-Netz (k3s default, nicht mit Heimnetz kollidieren)
+k3s_service_cidr: "10.43.0.0/16"   # Service-Netz
+k3s_cluster_dns: "10.43.0.10"
+k3s_datastore: "etcd"              # embedded etcd für HA
+k3s_token: "{{ vault_k3s_token }}" # in ansible/inventory/group_vars/vault.yml (ansible-vault)
+
+# Traefik und ServiceLB deaktivieren (wir nutzen eigene)
+k3s_server_extra_args: >-
+  --disable traefik
+  --disable servicelb
+  --cluster-cidr {{ k3s_cluster_cidr }}
+  --service-cidr {{ k3s_service_cidr }}
+  --cluster-dns {{ k3s_cluster_dns }}
+  --etcd-expose-metrics true
+  --flannel-backend=vxlan
+
+k3s_agent_extra_args: ""
+
+# === MetalLB IP-Pool ===
+metallb_ip_range: "192.168.1.200-192.168.1.220"  # <-- freie IPs in deinem Heimnetz
+
+# === Flux CD ===
+flux_github_owner: "dein-github-user"    # <-- anpassen
+flux_github_repo: "homelab-gitops"       # <-- anpassen
+flux_github_branch: "main"
+flux_github_path: "./clusters/homelab"

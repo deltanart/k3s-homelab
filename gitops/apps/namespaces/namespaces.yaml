@@ -1,0 +1,38 @@
+---
+# Alle App-Namespaces zentral verwalten
+# Neue Apps: Namespace hier eintragen, dann App-Verzeichnis anlegen
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps
+  labels:
+    app.kubernetes.io/managed-by: flux
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nextcloud
+  labels:
+    app.kubernetes.io/managed-by: flux
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vaultwarden
+  labels:
+    app.kubernetes.io/managed-by: flux
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: paperless
+  labels:
+    app.kubernetes.io/managed-by: flux
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homepage
+  labels:
+    app.kubernetes.io/managed-by: flux

@@ -1,0 +1,15 @@
+# Diese Datei mit ansible-vault verschlüsseln:
+#   ansible-vault encrypt inventory/group_vars/vault.yml
+#
+# Bearbeiten:
+#   ansible-vault edit inventory/group_vars/vault.yml
+#
+# Playbook ausführen:
+#   ansible-playbook playbooks/02_install_k3s.yml --ask-vault-pass
+#   oder mit Passwort-Datei:
+#   ansible-playbook playbooks/02_install_k3s.yml --vault-password-file ~/.vault_pass
+
+vault_proxmox_password: "PROXMOX_ROOT_PASSWORT_HIER"
+vault_vm_password: "VM_UBUNTU_PASSWORT_HIER"
+vault_k3s_token: "EIN_LANGES_ZUFAELLIGES_SECRET_HIER"   # z.B.: openssl rand -hex 32
+vault_github_token: "ghp_DEIN_GITHUB_PAT_HIER"

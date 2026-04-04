@@ -1,0 +1,66 @@
+---
+# Voraussetzung: GITHUB_TOKEN als Umgebungsvariable gesetzt
+# export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+#
+# Ausführen mit:
+# ansible-playbook playbooks/03_bootstrap_flux.yml
+
+- name: Flux CD in k3s-Cluster bootstrappen
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../inventory/group_vars/all.yml"
+    - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
+
+  environment:
+    KUBECONFIG: "~/.kube/homelab-k3s.yaml"
+    GITHUB_TOKEN: "{{ vault_github_token }}"
+
+  tasks:
+    - name: Prüfe Flux CLI vorhanden
+      ansible.builtin.command: flux version --client
+      register: flux_version
+      changed_when: false
+
+    - name: Flux-Version anzeigen
+      ansible.builtin.debug:
+        msg: "{{ flux_version.stdout }}"
+
+    - name: Prüfe Cluster-Voraussetzungen (flux check --pre)
+      ansible.builtin.command: flux check --pre
+      register: flux_pre
+      changed_when: false
+      failed_when: flux_pre.rc != 0
+
+    - name: Flux CD auf GitHub bootstrappen
+      ansible.builtin.command: >
+        flux bootstrap github
+          --owner={{ flux_github_owner }}
+          --repository={{ flux_github_repo }}
+          --branch={{ flux_github_branch }}
+          --path={{ flux_github_path }}
+          --personal
+          --private=false
+          --components-extra=image-reflector-controller,image-automation-controller
+      register: flux_bootstrap
+      changed_when: "'already up to date' not in flux_bootstrap.stdout"
+
+    - name: Bootstrap-Output anzeigen
+      ansible.builtin.debug:
+        msg: "{{ flux_bootstrap.stdout_lines }}"
+
+    - name: Warte bis Flux-Pods laufen
+      ansible.builtin.command: >
+        kubectl wait --for=condition=ready pod
+          --all -n flux-system
+          --timeout=300s
+      changed_when: false
+
+    - name: Flux-Status prüfen
+      ansible.builtin.command: flux check
+      register: flux_status
+      changed_when: false
+
+    - name: Flux-Status ausgeben
+      ansible.builtin.debug:
+        msg: "{{ flux_status.stdout_lines }}"

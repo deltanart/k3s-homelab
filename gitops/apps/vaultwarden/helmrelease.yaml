@@ -1,0 +1,62 @@
+---
+# Beispiel-Migration einer Docker-App nach Kubernetes
+# Zeigt das vollständige Pattern: HelmRelease + PVC + SealedSecret + Ingress
+
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: guerzon
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://guerzon.github.io/vaultwarden
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: vaultwarden
+      version: ">=0.21.0"
+      sourceRef:
+        kind: HelmRepository
+        name: guerzon
+        namespace: flux-system
+      interval: 12h
+  values:
+    image:
+      tag: "latest"
+
+    # Datenbankpfad persistent speichern
+    storage:
+      data:
+        name: vaultwarden-data
+        size: 5Gi
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+
+    # Admin-Token aus SealedSecret (siehe vaultwarden-secrets.yaml)
+    adminToken:
+      existingSecret: vaultwarden-secret
+      existingSecretKey: ADMIN_TOKEN
+
+    signupsAllowed: false   # Registrierung deaktivieren nach erstem Setup
+
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hostname: vault.home.local   # <-- anpassen
+      tls: false                   # intern; für extern: true + cert-manager
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi

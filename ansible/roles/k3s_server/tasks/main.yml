@@ -1,0 +1,67 @@
+---
+- name: Prüfe ob k3s-Server bereits läuft
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: k3s Server installieren
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | \
+    INSTALL_K3S_VERSION="{{ k3s_version }}" \
+    K3S_TOKEN="{{ k3s_token }}" \
+    sh -s - server \
+      --cluster-init \
+      {{ k3s_server_extra_args }}
+  when: not k3s_binary.stat.exists
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Warte bis k3s-Server bereit ist
+  ansible.builtin.wait_for:
+    path: /var/lib/rancher/k3s/server/node-token
+    timeout: 120
+
+- name: Warte auf k3s-API-Server
+  ansible.builtin.uri:
+    url: "https://127.0.0.1:6443/healthz"
+    validate_certs: false
+    status_code: 200
+  register: api_health
+  retries: 30
+  delay: 5
+  until: api_health.status == 200
+
+- name: kubeconfig-Verzeichnis erstellen
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    mode: '0700'
+
+- name: kubeconfig kopieren
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ ansible_env.HOME }}/.kube/config"
+    remote_src: true
+    mode: '0600'
+
+- name: kubeconfig Server-IP korrigieren
+  ansible.builtin.replace:
+    path: "{{ ansible_env.HOME }}/.kube/config"
+    regexp: 'https://127\.0\.0\.1:6443'
+    replace: "https://{{ ansible_host }}:6443"
+
+- name: Node-Token auslesen
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: node_token_raw
+
+- name: Node-Token als Fact speichern
+  ansible.builtin.set_fact:
+    k3s_node_token: "{{ node_token_raw.content | b64decode | trim }}"
+
+- name: kubeconfig lokal ablegen
+  ansible.builtin.fetch:
+    src: "{{ ansible_env.HOME }}/.kube/config"
+    dest: "~/.kube/homelab-k3s.yaml"
+    flat: true
+  delegate_to: localhost

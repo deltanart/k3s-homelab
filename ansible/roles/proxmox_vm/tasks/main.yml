@@ -1,0 +1,85 @@
+---
+# Voraussetzung: Cloud-Init Template existiert bereits auf Proxmox.
+# Erstelle es einmalig manuell:
+#   qm create 9000 --name ubuntu-2404-template --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
+#   qm importdisk 9000 noble-server-cloudimg-amd64.img local-lvm
+#   qm set 9000 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9000-disk-0
+#   qm set 9000 --ide2 local-lvm:cloudinit --boot c --bootdisk scsi0 --serial0 socket --vga serial0
+#   qm template 9000
+
+- name: Prüfe ob VM bereits existiert
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "root@pam"
+    api_password: "{{ vault_proxmox_password }}"
+    node: "{{ proxmox_node }}"
+    vmid: "{{ vm_id }}"
+    state: current
+  register: vm_status
+  ignore_errors: true
+
+- name: Klone Cloud-Init Template zur neuen VM
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "root@pam"
+    api_password: "{{ vault_proxmox_password }}"
+    node: "{{ proxmox_node }}"
+    clone: "{{ vm_template_id }}"
+    vmid: "{{ vm_id }}"
+    name: "{{ vm_name }}"
+    full: true
+    storage: "{{ proxmox_storage }}"
+    timeout: 300
+  when: vm_status is failed
+
+- name: Konfiguriere VM-Hardware
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "root@pam"
+    api_password: "{{ vault_proxmox_password }}"
+    node: "{{ proxmox_node }}"
+    vmid: "{{ vm_id }}"
+    cores: "{{ vm_cores }}"
+    memory: "{{ vm_memory }}"
+    balloon: 0
+    net:
+      net0: "virtio,bridge={{ proxmox_bridge }}"
+    update: true
+
+- name: Setze Cloud-Init Konfiguration
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "root@pam"
+    api_password: "{{ vault_proxmox_password }}"
+    node: "{{ proxmox_node }}"
+    vmid: "{{ vm_id }}"
+    ciuser: ubuntu
+    cipassword: "{{ vault_vm_password }}"
+    sshkeys: "{{ vm_ssh_public_key }}"
+    ipconfig:
+      ipconfig0: "ip={{ vm_ip }}/24,gw={{ vm_gateway }}"
+    nameservers: "{{ vm_nameservers }}"
+    searchdomains: "{{ vm_searchdomain }}"
+    update: true
+
+- name: Vergrößere Root-Disk
+  ansible.builtin.command: >
+    qm resize {{ vm_id }} scsi0 {{ vm_disk_size }}
+  delegate_to: "{{ proxmox_host }}"
+  changed_when: true
+
+- name: Starte VM
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "root@pam"
+    api_password: "{{ vault_proxmox_password }}"
+    node: "{{ proxmox_node }}"
+    vmid: "{{ vm_id }}"
+    state: started
+
+- name: Warte bis VM per SSH erreichbar ist
+  ansible.builtin.wait_for:
+    host: "{{ vm_ip }}"
+    port: 22
+    delay: 10
+    timeout: 180
