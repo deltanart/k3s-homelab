@@ -50,7 +50,7 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-    - 192.168.1.200-192.168.1.220   # <-- freie IPs in deinem Heimnetz
+    - 192.168.1.80-192.168.1.100   # <-- freie IPs in deinem Heimnetz
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
