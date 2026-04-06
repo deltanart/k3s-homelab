@@ -1,54 +1,20 @@
 ---
 # Wird auf dem lokalen Rechner (localhost) ausgeführt
-- name: kubectl installieren (Linux)
-  ansible.builtin.shell: |
-    curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    rm kubectl
-  args:
-    creates: /usr/local/bin/kubectl
-  become: true
-  delegate_to: localhost
-
-- name: Helm installieren
-  ansible.builtin.shell: |
-    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-  args:
-    creates: /usr/local/bin/helm
-  become: true
-  delegate_to: localhost
-
-- name: Flux CLI installieren
-  ansible.builtin.shell: |
-    curl -s https://fluxcd.io/install.sh | bash
-  args:
-    creates: /usr/local/bin/flux
-  become: true
-  delegate_to: localhost
-
-- name: kubeseal installieren (Sealed Secrets CLI)
-  ansible.builtin.shell: |
-    KUBESEAL_VERSION=$(curl -s https://api.github.com/repos/bitnami-labs/sealed-secrets/releases/latest | jq -r '.tag_name')
-    curl -Lo kubeseal "https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64"
-    install -m 755 kubeseal /usr/local/bin/kubeseal
-    rm kubeseal
-  args:
-    creates: /usr/local/bin/kubeseal
-  become: true
-  delegate_to: localhost
 
 - name: KUBECONFIG in .bashrc/.zshrc eintragen
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "~/.bashrc"
     line: 'export KUBECONFIG=~/.kube/homelab-k3s.yaml'
     regexp: 'KUBECONFIG.*homelab'
+  become: false
   delegate_to: localhost
 
 - name: Cluster-Info ausgeben
   ansible.builtin.command: kubectl cluster-info
   register: cluster_info
   environment:
-    KUBECONFIG: "{{ ansible_env.HOME }}/.kube/homelab-k3s.yaml"
+    KUBECONFIG: "~/.kube/homelab-k3s.yaml"
+  become: false
   delegate_to: localhost
   changed_when: false
 
@@ -56,7 +22,8 @@
   ansible.builtin.command: kubectl get nodes -o wide
   register: nodes_info
   environment:
-    KUBECONFIG: "{{ ansible_env.HOME }}/.kube/homelab-k3s.yaml"
+    KUBECONFIG: "~/.kube/homelab-k3s.yaml"
+  become: false
   delegate_to: localhost
   changed_when: false
 

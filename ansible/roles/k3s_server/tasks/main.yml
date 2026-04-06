@@ -62,4 +62,3 @@
     src: "{{ ansible_env.HOME }}/.kube/config"
     dest: "~/.kube/homelab-k3s.yaml"
     flat: true
-  delegate_to: localhost

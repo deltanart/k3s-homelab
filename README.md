@@ -65,6 +65,14 @@ cp inventory/group_vars/vault.yml.example inventory/group_vars/vault.yml
 ansible-vault encrypt inventory/group_vars/vault.yml
 
 # Create a Cloud-Init template on Proxmox (once, manually — see comment in proxmox_vm/tasks/main.yml)
+
+# installing required tools on local machine 
+
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) 
+- [helm](https://helm.sh/docs/intro/install#from-apt-debianubuntu) 
+- [flux](https://fluxcd.io/flux/installation/#install-the-flux-cli)
+- [kubeseal](https://github.com/bitnami-labs/sealed-secrets?tab=readme-ov-file#linux)
+
 ```
 
 ### Step 1 – Provision VMs
