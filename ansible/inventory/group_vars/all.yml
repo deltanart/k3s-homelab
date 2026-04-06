@@ -1,14 +1,14 @@
 ---
 # === Proxmox ===
-proxmox_host: 192.168.1.20          # <-- anpassen
-proxmox_node: pve                   # Proxmox-Nodename (pvesh nodes)
-proxmox_storage: satassd            # Storage für VM-Disks
-proxmox_bridge: vmbr0               # Netzwerk-Bridge
+proxmox_host: 192.168.1.20
+proxmox_node: pve1
+proxmox_storage: satassd # Storage für VM-Disks
+proxmox_bridge: vmbr0 # Netzwerk-Bridge
 
 # === VM Defaults ===
 vm_template_id: 8000                # Cloud-Init Template VMID
 vm_os_disk_size: "40G"
-vm_nameservers: "192.168.1.1"       # <-- dein Router/DNS
+vm_nameservers: "192.168.1.1"
 vm_searchdomain: "home.local"
 vm_ssh_public_key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
 
@@ -36,7 +36,7 @@ k3s_agent_extra_args: ""
 metallb_ip_range: "192.168.1.40-192.168.1.60"  # <-- freie IPs in deinem Heimnetz
 
 # === Flux CD ===
-flux_github_owner: "dein-github-user"    # <-- anpassen
-flux_github_repo: "homelab-gitops"       # <-- anpassen
+flux_github_owner: "deltanart"
+flux_github_repo: "k3s-homelab"
 flux_github_branch: "main"
 flux_github_path: "./clusters/homelab"
