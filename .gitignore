@@ -1,0 +1,29 @@
+# Ansible
+*.retry
+.ansible/
+ansible/.vault_pass
+ansible/vault_pass.txt
+ansible/inventory/group_vars/vault.yml
+
+# Kubernetes & kubectl
+kubeconfig
+*.kubeconfig
+.kube/
+
+# Temporary secret files (before sealing)
+/tmp/*-secret.yaml
+*-secret-unsealed.yaml
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
