@@ -31,7 +31,7 @@ A fully automated homelab Kubernetes setup running k3s on virtual machines hoste
 │   │   └── 04_upgrade_k3s.yml
 │   └── requirements.yml
 │
-└── gitops/                     # GitOps repository (separate GitHub repo)
+└── gitops/                     # GitOps (same repo, watched by Flux)
     ├── clusters/homelab/       # Flux entry point
     │   ├── flux-system/        # Flux components (auto-generated)
     │   ├── infrastructure.yaml
@@ -95,17 +95,14 @@ ansible-playbook playbooks/03_bootstrap_flux.yml --ask-vault-pass
 flux get all -A
 ```
 
-### Step 4 – Populate GitOps Repo
+### Step 4 – Point Flux at This Repository
+
+Flux watches the `gitops/` directory in this repository. After bootstrapping, push your changes and Flux will reconcile automatically:
 
 ```bash
-# Flux has already cloned the repo and is waiting for content
-# Push the gitops/ directory to your GitHub repo:
-cd gitops
-git init
-git remote add origin https://github.com/YOUR_USER/homelab-gitops.git
-git add .
+git add gitops/
 git commit -m "feat: initial infrastructure stack"
-git push -u origin main
+git push
 
 # Flux syncs automatically (within ~1 minute)
 flux get kustomizations -A --watch
