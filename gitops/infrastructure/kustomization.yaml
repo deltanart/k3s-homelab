@@ -3,6 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # Reihenfolge wichtig: Abhängigkeiten zuerst
+  - namespaces.yaml    # Namespaces vorab anlegen
   - sealed-secrets     # Zuerst: Secrets-Management
   - metallb            # Load Balancer
   - cert-manager       # TLS-Zertifikate
