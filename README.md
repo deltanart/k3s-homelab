@@ -97,7 +97,7 @@ flux get all -A
 
 ### Step 4 – Point Flux at This Repository
 
-Flux watches the `gitops/` directory in this repository. After bootstrapping, push your changes and Flux will reconcile automatically:
+Flux watches the `gitops/` directory in this repository. After bootstrapping, changes pushed to this directory are reconciled automatically:
 
 ```bash
 git add gitops/
