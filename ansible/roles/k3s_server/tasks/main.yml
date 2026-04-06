@@ -22,14 +22,12 @@
     timeout: 120
 
 - name: Warte auf k3s-API-Server
-  ansible.builtin.uri:
-    url: "https://127.0.0.1:6443/healthz"
-    validate_certs: false
-    status_code: 200
+  ansible.builtin.command: k3s kubectl get nodes
   register: api_health
   retries: 30
   delay: 5
-  until: api_health.status == 200
+  until: api_health.rc == 0
+  changed_when: false
 
 - name: kubeconfig-Verzeichnis erstellen
   ansible.builtin.file:
