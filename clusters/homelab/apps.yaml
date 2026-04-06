@@ -18,5 +18,3 @@ spec:
   # Apps erst deployen wenn Infrastructure fertig
   dependsOn:
     - name: infrastructure
-  decryption:
-    provider: sops   # optional, wenn SOPS statt Sealed Secrets genutzt wird

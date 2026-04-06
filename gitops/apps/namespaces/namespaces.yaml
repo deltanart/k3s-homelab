@@ -12,13 +12,6 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: nextcloud
-  labels:
-    app.kubernetes.io/managed-by: flux
----
-apiVersion: v1
-kind: Namespace
-metadata:
   name: vaultwarden
   labels:
     app.kubernetes.io/managed-by: flux
