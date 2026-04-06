@@ -6,6 +6,12 @@
     - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
 
   tasks:
+    - name: Proxmoxer Bibliothek installieren
+      ansible.builtin.package:
+        name: python3-proxmoxer
+        state: present
+      become: true
+
     - name: Master-VM erstellen
       ansible.builtin.include_role:
         name: proxmox_vm
