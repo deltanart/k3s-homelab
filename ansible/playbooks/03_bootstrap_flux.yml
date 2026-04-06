@@ -13,7 +13,7 @@
     - "{{ playbook_dir }}/../inventory/group_vars/vault.yml"
 
   environment:
-    KUBECONFIG: "~/.kube/homelab-k3s.yaml"
+    KUBECONFIG: "{{ lookup('env', 'HOME') }}/.kube/homelab-k3s.yaml"
     GITHUB_TOKEN: "{{ vault_github_token }}"
 
   tasks:
