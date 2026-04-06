@@ -1,6 +1,6 @@
 ---
 # Sicheres Rolling-Upgrade des Clusters
-# Ausführen mit: ansible-playbook playbooks/04_upgrade_k3s.yml -e k3s_version=v1.31.0+k3s1
+# Ausführen mit: ansible-playbook playbooks/04_upgrade_k3s.yml -e k3s_version=v1.33.9+k3s1
 
 - name: k3s Master upgraden
   hosts: masters

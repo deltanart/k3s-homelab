@@ -142,7 +142,7 @@ kubectl create secret generic my-secret \
 # Upgrade k3s (rolling update)
 ansible-playbook playbooks/04_upgrade_k3s.yml \
   --ask-vault-pass \
-  -e k3s_version=v1.31.0+k3s1
+  -e k3s_version=v1.33.9+k3s1
 ```
 
 ---
