@@ -25,7 +25,8 @@
     api_password: "{{ vault_proxmox_password }}"
     node: "{{ proxmox_node }}"
     clone: "{{ vm_template_id }}"
-    vmid: "{{ vm_id }}"
+    vmid: "{{ vm_template_id }}"
+    newid: "{{ vm_id }}"
     name: "{{ vm_name }}"
     full: true
     storage: "{{ proxmox_storage }}"
@@ -53,7 +54,7 @@
     api_password: "{{ vault_proxmox_password }}"
     node: "{{ proxmox_node }}"
     vmid: "{{ vm_id }}"
-    ciuser: ubuntu
+    ciuser: cn
     cipassword: "{{ vault_vm_password }}"
     sshkeys: "{{ vm_ssh_public_key }}"
     ipconfig:
@@ -63,10 +64,14 @@
     update: true
 
 - name: Vergrößere Root-Disk
-  ansible.builtin.command: >
-    qm resize {{ vm_id }} scsi0 {{ vm_disk_size }}
-  delegate_to: "{{ proxmox_host }}"
-  changed_when: true
+  community.general.proxmox_disk:
+    api_host: "{{ proxmox_host }}"
+    api_user: "root@pam"
+    api_password: "{{ vault_proxmox_password }}"
+    vmid: "{{ vm_id }}"
+    disk: scsi0
+    size: "{{ vm_disk_size }}"
+    state: resized
 
 - name: Starte VM
   community.general.proxmox_kvm:
