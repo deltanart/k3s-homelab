@@ -12,7 +12,7 @@
       vars:
         vm_id: 110
         vm_name: k3s-master-01
-        vm_ip: 192.168.1.110
+        vm_ip: 192.168.1.25
         vm_gateway: 192.168.1.1
         vm_cores: "{{ hostvars['k3s-master-01'].vm_cores | default(2) }}"
         vm_memory: "{{ hostvars['k3s-master-01'].vm_memory | default(4096) }}"
@@ -22,9 +22,9 @@
       ansible.builtin.include_role:
         name: proxmox_vm
       vars:
-        vm_id: "{{ 110 + idx + 1 }}"
+        vm_id: "{{ 320 + idx + 1 }}"
         vm_name: "k3s-worker-0{{ idx + 1 }}"
-        vm_ip: "192.168.1.{{ 110 + idx + 1 }}"
+        vm_ip: "192.168.1.{{ 29 + idx + 1 }}"
         vm_gateway: 192.168.1.1
         vm_cores: 4
         vm_memory: 8192
