@@ -1,0 +1,23 @@
+---
+# Zentrale Konfigurationsvariablen für das gesamte Cluster.
+# Alle Werte hier anpassen – sie werden automatisch in alle Manifeste eingesetzt.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-vars
+  namespace: flux-system
+data:
+  # Basis-Domain (z.B. example.de)
+  BASE_DOMAIN: "home.local"               # <-- anpassen
+  # ACME / Let's Encrypt E-Mail
+  ACME_EMAIL: "deine@email.de"            # <-- anpassen
+  # Hetzner DNS Zone (normalerweise = BASE_DOMAIN)
+  HETZNER_DNS_ZONE: "home.local"          # <-- anpassen
+  # Webhook groupName für cert-manager-webhook-hetzner
+  ACME_GROUP_NAME: "acme.home.local"      # <-- anpassen
+  # MetalLB IP-Bereich
+  METALLB_IP_RANGE: "192.168.1.80-192.168.1.100"  # <-- anpassen
+  # Master-Node IP (für etcd-Monitoring)
+  MASTER_IP: "192.168.1.110"              # <-- anpassen
+  # ntfy Alerting URL
+  NTFY_ALERT_URL: "http://ntfy.home.local/k3s-alerts"  # <-- anpassen

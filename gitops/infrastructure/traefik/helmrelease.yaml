@@ -63,9 +63,9 @@ spec:
         defaultGeneratedCert:
           resolver: letsencrypt-prod
           domain:
-            main: "home.local"   # <-- deine Domain anpassen
+            main: "${BASE_DOMAIN}"
             sans:
-              - "*.home.local"
+              - "*.${BASE_DOMAIN}"
 
     logs:
       general:

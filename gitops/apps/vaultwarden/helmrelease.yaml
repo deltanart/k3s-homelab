@@ -49,7 +49,7 @@ spec:
     ingress:
       enabled: true
       ingressClassName: traefik
-      hostname: vault.home.local   # <-- anpassen
+      hostname: vault.${BASE_DOMAIN}
       tls: false                   # intern; für extern: true + cert-manager
       annotations:
         traefik.ingress.kubernetes.io/router.entrypoints: websecure

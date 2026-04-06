@@ -50,7 +50,7 @@ spec:
     ingress:
       enabled: true
       ingressClassName: traefik
-      host: longhorn.home.local  # <-- anpassen
+      host: longhorn.${BASE_DOMAIN}
       tls: false                 # intern, kein TLS nötig
 
     metrics:

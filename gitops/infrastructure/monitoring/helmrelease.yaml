@@ -42,7 +42,7 @@ spec:
         enabled: true
         ingressClassName: traefik
         hosts:
-          - grafana.home.local   # <-- anpassen
+          - grafana.${BASE_DOMAIN}
         tls: []
       dashboardProviders:
         dashboardproviders.yaml:
@@ -129,7 +129,7 @@ spec:
           - name: 'null'
           - name: 'ntfy'
             webhook_configs:
-              - url: 'http://ntfy.home.local/k3s-alerts'  # <-- anpassen
+              - url: '${NTFY_ALERT_URL}'
                 send_resolved: true
 
     # --- Node Exporter ---
@@ -150,7 +150,7 @@ spec:
     kubeEtcd:
       enabled: true
       endpoints:
-        - 192.168.1.110   # Master-IP
+        - ${MASTER_IP}
       service:
         enabled: true
         port: 2381
