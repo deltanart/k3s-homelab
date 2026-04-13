@@ -31,21 +31,20 @@ A fully automated homelab Kubernetes setup running k3s on virtual machines hoste
 │   │   └── 04_upgrade_k3s.yml
 │   └── requirements.yml
 │
-└── gitops/                     # GitOps (same repo, watched by Flux)
-    ├── clusters/homelab/       # Flux entry point
-    │   ├── flux-system/        # Flux components (auto-generated)
-    │   ├── infrastructure.yaml
-    │   └── apps.yaml
-    ├── infrastructure/         # Cluster infrastructure
-    │   ├── sealed-secrets/
-    │   ├── metallb/
-    │   ├── cert-manager/
-    │   ├── traefik/
-    │   ├── longhorn/
-    │   └── monitoring/
-    └── apps/                   # Applications
-        ├── namespaces/
-        └── vaultwarden/        # Example app
+├── clusters/homelab/       # Flux entry point
+│   ├── flux-system/        # Flux components (auto-generated)
+│   ├── infrastructure.yaml
+│   └── apps.yaml
+├── infrastructure/         # Cluster infrastructure
+│   ├── sealed-secrets/
+│   ├── metallb/
+│   ├── cert-manager/
+│   ├── traefik/
+│   ├── longhorn/
+│   └── monitoring/
+└── apps/                   # Applications
+    ├── namespaces/
+    └── vaultwarden/        # Example app
 ```
 
 ---
@@ -156,10 +155,10 @@ Files marked with `# <-- customize` that need updating before first run:
 | `ansible/inventory/hosts.yml` | Proxmox host IP and VM IPs |
 | `ansible/inventory/group_vars/all.yml` | `proxmox_host`, `vm_nameservers`, `metallb_ip_range`, `flux_github_owner`, `flux_github_repo` |
 | `ansible/inventory/group_vars/vault.yml` | All passwords and tokens |
-| `gitops/infrastructure/cert-manager/helmrelease.yaml` | Email address for Let's Encrypt |
-| `gitops/infrastructure/traefik/helmrelease.yaml` | Domain (`home.local` or custom) |
-| `gitops/infrastructure/longhorn/helmrelease.yaml` | Ingress hostname |
-| `gitops/infrastructure/monitoring/helmrelease.yaml` | Master IP for etcd scraping |
+| `infrastructure/cert-manager/helmrelease.yaml` | Email address for Let's Encrypt |
+| `infrastructure/traefik/helmrelease.yaml` | Domain (`home.local` or custom) |
+| `infrastructure/longhorn/helmrelease.yaml` | Ingress hostname |
+| `infrastructure/monitoring/helmrelease.yaml` | Master IP for etcd scraping |
 
 ---
 
