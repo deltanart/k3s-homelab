@@ -22,3 +22,7 @@ spec:
       kind: Deployment
       name: sealed-secrets-controller
       namespace: kube-system
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: metallb-controller
+      namespace: metallb-system
