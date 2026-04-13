@@ -5,6 +5,7 @@ resources:
   - namespaces
   # Apps hier eintragen sobald sie migriert werden:
   # - nextcloud
-  # - vaultwarden
   # - paperless
   # - homepage
+  - vaultwarden
+  - rancher

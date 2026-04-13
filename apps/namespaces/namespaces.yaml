@@ -29,3 +29,10 @@ metadata:
   name: homepage
   labels:
     app.kubernetes.io/managed-by: flux
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cattle-system
+  labels:
+    app.kubernetes.io/managed-by: flux
